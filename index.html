@@ -56,14 +56,14 @@
   .sub{color:rgba(245,239,224,0.6); font-size:13.5px; margin-top:8px;}
 
   /* Tabs */
-  nav.tabs{display:flex; gap:6px; margin-bottom:22px; background:rgba(0,0,0,0.18); padding:5px; border-radius:12px;}
+  nav.tabs{display:flex; gap:4px; margin-bottom:22px; background:rgba(0,0,0,0.18); padding:5px; border-radius:12px;}
   nav.tabs button{
-    flex:1; padding:10px 8px; border:none; border-radius:8px; background:transparent;
-    color:rgba(245,239,224,0.65); font-family:'Inter',sans-serif; font-weight:600; font-size:13.5px;
-    cursor:pointer; transition:all .15s ease; display:flex; align-items:center; justify-content:center; gap:6px;
+    flex:1; padding:10px 4px; border:none; border-radius:8px; background:transparent;
+    color:rgba(245,239,224,0.65); font-family:'Inter',sans-serif; font-weight:600; font-size:12.5px;
+    cursor:pointer; transition:all .15s ease; display:flex; align-items:center; justify-content:center; gap:5px;
   }
   nav.tabs button.active{background:var(--card-cream); color:var(--ink); box-shadow:0 2px 6px rgba(0,0,0,0.25);}
-  nav.tabs svg{width:15px;height:15px;flex-shrink:0;}
+  nav.tabs svg{width:14px;height:14px;flex-shrink:0;}
 
   .view{display:none;}
   .view.active{display:block; animation:fadeIn .25s ease;}
@@ -170,6 +170,28 @@
   .del-btn{background:none; border:none; color:var(--flag-red); font-size:13px; cursor:pointer; font-weight:600; padding:4px 8px;}
   .settings-note{font-size:12px; color:var(--ink-muted); margin-top:18px; line-height:1.5; border-top:1px solid var(--line); padding-top:14px;}
 
+  /* Groups tab */
+  .group-card{background:var(--card-cream-2); border-radius:12px; padding:14px 14px 16px; margin-bottom:12px; border:1px solid var(--line);}
+  .group-head{display:flex; align-items:center; gap:8px; margin-bottom:10px;}
+  .group-name-input{
+    flex:1; border:none; background:transparent; font-family:'Fraunces',serif; font-weight:600; font-size:16px;
+    color:var(--ink); padding:4px 2px; border-bottom:1px dashed transparent; margin:0;
+  }
+  .group-name-input:focus{outline:none; border-bottom-color:var(--ink-muted);}
+  .group-remove{background:none; border:none; color:var(--flag-red); font-size:12.5px; font-weight:600; cursor:pointer; padding:4px 6px; flex-shrink:0;}
+  .chip-row{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;}
+  .chip{
+    display:flex; align-items:center; gap:6px; background:#fff; border:1px solid var(--line); border-radius:999px;
+    padding:6px 6px 6px 12px; font-size:13.5px; font-weight:600; color:var(--ink);
+  }
+  .chip button{
+    background:var(--line); border:none; border-radius:50%; width:18px; height:18px; color:var(--ink);
+    font-size:12px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;
+  }
+  .chip.unassigned{background:transparent; border-style:dashed;}
+  .group-add-select{margin-bottom:0; font-size:13.5px; padding:9px 10px;}
+  .group-empty{font-size:12.5px; color:var(--ink-muted); margin:0 0 12px;}
+
   ::selection{background:var(--gold-soft);}
 </style>
 </head>
@@ -190,6 +212,10 @@
     <button data-tab="enter">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16M4 4v10a4 4 0 0 0 4 4h1M4 4h5M4 4 2 6M9 4l2 2"/><path d="M13 20V9l7-5v11l-7 5Z"/></svg>
       Enter Score
+    </button>
+    <button data-tab="groups">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="7" height="7" rx="1.5"/><rect x="14" y="4" width="7" height="7" rx="1.5"/><rect x="3" y="15" width="7" height="7" rx="1.5"/><rect x="14" y="15" width="7" height="7" rx="1.5"/></svg>
+      Groups
     </button>
     <button data-tab="players">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="8.5" r="2.6"/><path d="M15.5 14.2c2.6.4 4.5 2.6 4.5 5.3"/></svg>
@@ -261,6 +287,31 @@
     </div>
   </div>
 
+  <!-- GROUPS -->
+  <div class="view" id="view-groups">
+    <div class="card">
+      <h2>Playing Groups</h2>
+      <p class="hint">Build tee groups for each round. A player can only be in one group per round — add them to a new group and they'll move automatically.</p>
+
+      <label class="field-label">Round</label>
+      <div class="pill-row" id="groupDayPills">
+        <button class="pill active" data-gday="day1">Round 1</button>
+        <button class="pill" data-gday="day2">Round 2</button>
+        <button class="pill" data-gday="day3">Round 3</button>
+      </div>
+
+      <div id="groupsList"></div>
+
+      <button class="save-btn" style="background:var(--fairway-dark); margin-top:6px;" onclick="addGroup()">+ Add Group</button>
+    </div>
+
+    <div class="card">
+      <h2>Unassigned — <span id="unassignedDayLabel">Round 1</span></h2>
+      <p class="hint">Not yet placed in a group for this round.</p>
+      <div id="unassignedList"></div>
+    </div>
+  </div>
+
   <!-- PLAYERS -->
   <div class="view" id="view-players">
     <div class="card">
@@ -286,12 +337,12 @@
    4. In Firestore > Rules, paste the permissive rules from the setup notes I gave you, then Publish.
    ============================================================ */
 const firebaseConfig = {
-  apiKey: "AIzaSyC9y0VgSGe404jliCOVu1lAEe2N7g28QUs",
-  authDomain: "fluffy-xx-leaderboard.firebaseapp.com",
-  projectId: "fluffy-xx-leaderboard",
-  storageBucket: "fluffy-xx-leaderboard.firebasestorage.app",
-  messagingSenderId: "512989809896",
-  appId: "1:512989809896:web:2f703e7828c09a7f37cd5d"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
 };
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -305,14 +356,17 @@ const db = getFirestore(app);
 const playersCol = collection(db, 'players');
 const settingsRef = doc(db, 'settings', 'main');
 function dayRef(day){ return doc(db, 'scores', day); }
+function groupsRef(day){ return doc(db, 'groups', day); }
 
 const DAYS = ['day1','day2','day3'];
 const DAY_LABELS = {day1:'Round 1', day2:'Round 2', day3:'Round 3'};
 
 let players = [];          // [{id, name}]
 let scores = {day1:{}, day2:{}, day3:{}};  // scores[day][playerId] = {front, back}
+let groups = {day1:[], day2:[], day3:[]};  // groups[day] = [{id, name, playerIds:[]}]
 let settings = {tripName:'Golf Trip'};
 let currentDay = 'day1';
+let groupsDay = 'day1';
 let scoreboardView = 'overall';
 
 const flagSVG = (color) => `<svg class="flag-mini" viewBox="0 0 24 24" fill="${color}"><path d="M6 2v20h2v-8h11l-3-4 3-4H8V2H6z"/></svg>`;
@@ -340,6 +394,12 @@ DAYS.forEach(d => {
     renderLeaderboard();
     if(d === currentDay) renderRecent();
   }, (err)=> console.error('scores listener error', d, err));
+
+  onSnapshot(groupsRef(d), (snap)=>{
+    groups[d] = (snap.exists() && Array.isArray(snap.data().list)) ? snap.data().list : [];
+    if(d === currentDay) renderPlayerSelect();
+    if(d === groupsDay) renderGroups();
+  }, (err)=> console.error('groups listener error', d, err));
 });
 
 function refreshAll(){
@@ -357,6 +417,7 @@ document.querySelectorAll('nav.tabs button').forEach(btn=>{
     document.getElementById('view-'+btn.dataset.tab).classList.add('active');
     if(btn.dataset.tab === 'leaderboard') renderLeaderboard();
     if(btn.dataset.tab === 'enter') renderRecent();
+    if(btn.dataset.tab === 'groups') renderGroups();
   });
 });
 
@@ -396,8 +457,16 @@ function renderPlayerSelect(){
   const sel = document.getElementById('playerSelect');
   const cur = sel.value;
   sel.innerHTML = '<option value="">Select player…</option>' +
-    players.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+    players.map(p => {
+      const g = findGroupForPlayer(currentDay, p.id);
+      const label = g ? `${p.name} — ${g.name}` : p.name;
+      return `<option value="${p.id}">${escapeHtml(label)}</option>`;
+    }).join('');
   if(players.some(p=>p.id===cur)) sel.value = cur;
+}
+
+function findGroupForPlayer(day, playerId){
+  return (groups[day] || []).find(g => g.playerIds.includes(playerId)) || null;
 }
 
 async function addPlayer(){
@@ -414,6 +483,105 @@ async function removePlayer(id){
   catch(e){ console.error('could not remove player', e); }
 }
 
+// ---------- Groups ----------
+function newGroupId(){
+  return (crypto.randomUUID ? crypto.randomUUID() : 'g_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7));
+}
+
+async function saveGroups(day, list){
+  try{ await setDoc(groupsRef(day), { list }, { merge: true }); }
+  catch(e){ console.error('could not save groups', e); alert('Could not save groups — check your connection.'); }
+}
+
+async function addGroup(){
+  const list = [...(groups[groupsDay] || [])];
+  list.push({ id: newGroupId(), name: `Group ${list.length + 1}`, playerIds: [] });
+  groups[groupsDay] = list; // optimistic
+  renderGroups();
+  await saveGroups(groupsDay, list);
+}
+
+async function renameGroup(groupId, newName){
+  const list = (groups[groupsDay] || []).map(g => g.id === groupId ? { ...g, name: newName || g.name } : g);
+  groups[groupsDay] = list;
+  await saveGroups(groupsDay, list);
+}
+
+async function removeGroup(groupId){
+  const list = (groups[groupsDay] || []).filter(g => g.id !== groupId);
+  groups[groupsDay] = list;
+  renderGroups();
+  await saveGroups(groupsDay, list);
+}
+
+async function addPlayerToGroup(groupId, playerId){
+  if(!playerId) return;
+  const list = (groups[groupsDay] || []).map(g => ({
+    ...g,
+    playerIds: g.id === groupId
+      ? [...g.playerIds.filter(id => id !== playerId), playerId]
+      : g.playerIds.filter(id => id !== playerId) // remove from any other group
+  }));
+  groups[groupsDay] = list;
+  renderGroups();
+  await saveGroups(groupsDay, list);
+}
+
+async function removePlayerFromGroup(groupId, playerId){
+  const list = (groups[groupsDay] || []).map(g =>
+    g.id === groupId ? { ...g, playerIds: g.playerIds.filter(id => id !== playerId) } : g
+  );
+  groups[groupsDay] = list;
+  renderGroups();
+  await saveGroups(groupsDay, list);
+}
+
+function renderGroups(){
+  const listEl = document.getElementById('groupsList');
+  const unassignedEl = document.getElementById('unassignedList');
+  const dayGroups = groups[groupsDay] || [];
+  const assignedIds = new Set(dayGroups.flatMap(g => g.playerIds));
+  const unassigned = players.filter(p => !assignedIds.has(p.id));
+
+  if(players.length === 0){
+    listEl.innerHTML = '<p class="empty-note">Add players in the Players tab first.</p>';
+    unassignedEl.innerHTML = '';
+    return;
+  }
+
+  if(dayGroups.length === 0){
+    listEl.innerHTML = '<p class="empty-note">No groups yet for this round — tap "+ Add Group" below.</p>';
+  } else {
+    listEl.innerHTML = dayGroups.map(g => {
+      const chips = g.playerIds.map(pid => {
+        const p = players.find(pp => pp.id === pid);
+        if(!p) return '';
+        return `<span class="chip">${escapeHtml(p.name)}<button onclick="removePlayerFromGroup('${g.id}','${pid}')" title="Remove from group">×</button></span>`;
+      }).join('');
+      const availableToAdd = players.filter(p => !g.playerIds.includes(p.id));
+      const addOptions = availableToAdd.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+      return `
+        <div class="group-card">
+          <div class="group-head">
+            <input class="group-name-input" value="${escapeHtml(g.name)}" onchange="renameGroup('${g.id}', this.value)">
+            <button class="group-remove" onclick="removeGroup('${g.id}')">Remove group</button>
+          </div>
+          ${chips ? `<div class="chip-row">${chips}</div>` : '<p class="group-empty">No players yet.</p>'}
+          ${availableToAdd.length ? `
+            <select class="group-add-select" onchange="if(this.value){addPlayerToGroup('${g.id}', this.value); this.value='';}">
+              <option value="">+ Add player…</option>
+              ${addOptions}
+            </select>` : ''}
+        </div>
+      `;
+    }).join('');
+  }
+
+  unassignedEl.innerHTML = unassigned.length
+    ? `<div class="chip-row">${unassigned.map(p => `<span class="chip unassigned">${escapeHtml(p.name)}</span>`).join('')}</div>`
+    : '<p class="empty-note">Everyone is grouped for this round.</p>';
+}
+
 // ---------- Enter score ----------
 document.querySelectorAll('.pill[data-day]').forEach(btn=>{
   btn.addEventListener('click', ()=>{
@@ -422,8 +590,20 @@ document.querySelectorAll('.pill[data-day]').forEach(btn=>{
     currentDay = btn.dataset.day;
     document.getElementById('recentDayLabel').textContent = DAY_LABELS[currentDay];
     const existing = document.getElementById('playerSelect').value;
-    prefillIfExists(existing);
+    renderPlayerSelect();
+    document.getElementById('playerSelect').value = existing;
+    prefillIfExists(document.getElementById('playerSelect').value);
     renderRecent();
+  });
+});
+
+document.querySelectorAll('#groupDayPills .pill').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('#groupDayPills .pill').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    groupsDay = btn.dataset.gday;
+    document.getElementById('unassignedDayLabel').textContent = DAY_LABELS[groupsDay];
+    renderGroups();
   });
 });
 
@@ -632,12 +812,18 @@ renderPlayerSelect();
 renderPlayerList();
 renderLeaderboard();
 renderRecent();
+renderGroups();
 
 // Module scripts don't leak to global scope, so wire up the inline onclick handlers manually
 window.refreshAll = refreshAll;
 window.saveScore = saveScore;
 window.addPlayer = addPlayer;
 window.removePlayer = removePlayer;
+window.addGroup = addGroup;
+window.renameGroup = renameGroup;
+window.removeGroup = removeGroup;
+window.addPlayerToGroup = addPlayerToGroup;
+window.removePlayerFromGroup = removePlayerFromGroup;
 </script>
 </body>
 </html>
