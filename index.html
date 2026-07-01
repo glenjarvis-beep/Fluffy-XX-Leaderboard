@@ -179,6 +179,12 @@
   }
   .group-name-input:focus{outline:none; border-bottom-color:var(--ink-muted);}
   .group-remove{background:none; border:none; color:var(--flag-red); font-size:12.5px; font-weight:600; cursor:pointer; padding:4px 6px; flex-shrink:0;}
+  .tee-time-row{display:flex; align-items:center; gap:8px; margin-bottom:12px;}
+  .tee-time-label{font-size:11px; font-weight:600; color:var(--ink-muted); text-transform:uppercase; letter-spacing:.05em;}
+  .tee-time-input{
+    padding:6px 10px; border-radius:7px; border:1.5px solid var(--line); background:#fff;
+    font-family:'Space Mono',monospace; font-size:13px; color:var(--ink); width:auto; margin-bottom:0;
+  }
   .chip-row{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;}
   .chip{
     display:flex; align-items:center; gap:6px; background:#fff; border:1px solid var(--line); border-radius:999px;
@@ -495,7 +501,7 @@ async function saveGroups(day, list){
 
 async function addGroup(){
   const list = [...(groups[groupsDay] || [])];
-  list.push({ id: newGroupId(), name: `Group ${list.length + 1}`, playerIds: [] });
+  list.push({ id: newGroupId(), name: `Group ${list.length + 1}`, playerIds: [], teeTime: '' });
   groups[groupsDay] = list; // optimistic
   renderGroups();
   await saveGroups(groupsDay, list);
@@ -503,6 +509,12 @@ async function addGroup(){
 
 async function renameGroup(groupId, newName){
   const list = (groups[groupsDay] || []).map(g => g.id === groupId ? { ...g, name: newName || g.name } : g);
+  groups[groupsDay] = list;
+  await saveGroups(groupsDay, list);
+}
+
+async function updateGroupTeeTime(groupId, teeTime){
+  const list = (groups[groupsDay] || []).map(g => g.id === groupId ? { ...g, teeTime } : g);
   groups[groupsDay] = list;
   await saveGroups(groupsDay, list);
 }
@@ -565,6 +577,10 @@ function renderGroups(){
           <div class="group-head">
             <input class="group-name-input" value="${escapeHtml(g.name)}" onchange="renameGroup('${g.id}', this.value)">
             <button class="group-remove" onclick="removeGroup('${g.id}')">Remove group</button>
+          </div>
+          <div class="tee-time-row">
+            <label class="tee-time-label">Tee time</label>
+            <input type="time" class="tee-time-input" value="${escapeHtml(g.teeTime || '')}" onchange="updateGroupTeeTime('${g.id}', this.value)">
           </div>
           ${chips ? `<div class="chip-row">${chips}</div>` : '<p class="group-empty">No players yet.</p>'}
           ${availableToAdd.length ? `
@@ -821,6 +837,7 @@ window.addPlayer = addPlayer;
 window.removePlayer = removePlayer;
 window.addGroup = addGroup;
 window.renameGroup = renameGroup;
+window.updateGroupTeeTime = updateGroupTeeTime;
 window.removeGroup = removeGroup;
 window.addPlayerToGroup = addPlayerToGroup;
 window.removePlayerFromGroup = removePlayerFromGroup;
